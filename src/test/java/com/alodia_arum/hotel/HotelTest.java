@@ -40,11 +40,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-/**
- * Created by Oleg Volkov (AxiomSL) on 12.06.2016.
- *
- * Test Configuraion Class
- */
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration(classes = {HotelConfiguration.class})
@@ -97,14 +92,14 @@ public class HotelTest {
                 .hotel(hotel)
                 .build();
         reservation = new ReservationBuilder()
-                .from(dateTimeFormatter.parseDateTime("01-06-2016"))
-                .to(dateTimeFormatter.parseDateTime("05-06-2016"))
+                .from(dateTimeFormatter.parseDateTime("01-10-2021"))
+                .to(dateTimeFormatter.parseDateTime("05-10-2021"))
                 .cancelled(false)
                 .build();
         mockMvc = MockMvcBuilders.webAppContextSetup(this.webApplicationContext).build();
     }
     
-    //Functional Test
+    //Tambahan Baru
     @Test
     public void createCreateTest() throws Exception {
         
@@ -158,7 +153,7 @@ public class HotelTest {
         Assert.assertTrue(e instanceof Exception);
     }
     
-
+    //Tambahan Baru
 
     @Test
     public void testListRooms() throws Exception {
