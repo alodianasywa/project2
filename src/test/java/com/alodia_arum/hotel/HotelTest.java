@@ -8,6 +8,7 @@ import com.alodia_arum.hotel.configuration.HotelConfiguration;
 import com.alodia_arum.hotel.controller.HotelController;
 import com.alodia_arum.hotel.model.*;
 import com.alodia_arum.hotel.service.GuestService;
+import com.alodia_arum.hotel.service.GuestRepository;
 import com.alodia_arum.hotel.service.HotelService;
 import com.alodia_arum.hotel.service.ReservationService;
 import com.alodia_arum.hotel.service.RoomService;
@@ -15,12 +16,14 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import org.junit.Assert;
+//import org.junit.jupiter.api.Assertions;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
+import static org.mockito.Mockito.when;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -32,10 +35,16 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
 import static org.hamcrest.Matchers.*;
+import org.mockito.Mock;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * Created by Oleg Volkov (AxiomSL) on 12.06.2016.
+ *
+ * Test Configuraion Class
+ */
 @RunWith(SpringJUnit4ClassRunner.class)
 @WebAppConfiguration
 @ContextConfiguration(classes = {HotelConfiguration.class})
@@ -65,6 +74,9 @@ public class HotelTest {
 
     @InjectMocks
     HotelController hotelController;
+    
+    @Mock
+    GuestRepository repository;
 
     @Before
     public void setUp() {
@@ -79,7 +91,7 @@ public class HotelTest {
                 .lastName("Test")
                 .build();
         room = new RoomBuilder()
-                .number("777")
+                .number("999")
                 .type(RoomType.StandardRoom)
                 .direction(RoomDirection.NORTH)
                 .hotel(hotel)
@@ -91,6 +103,62 @@ public class HotelTest {
                 .build();
         mockMvc = MockMvcBuilders.webAppContextSetup(this.webApplicationContext).build();
     }
+    
+    //Functional Test
+    @Test
+    public void createCreateTest() throws Exception {
+        
+        
+        Throwable e = null;
+        String message = null;
+        
+        try {
+            Guest gst = new Guest();
+            gst.setId(100L);
+            gst.setLogin("TestNewAccount");
+            gst.setPassword("AddTestPassword");
+            gst.setConfirm("AddTestPassword");
+            gst.setFirstName("NameOf");
+            gst.setLastName("Account");
+            gst.setRole(GuestRole.ROLE_GUEST);
+
+            when(repository.save(gst))
+                    .thenThrow(new Exception("Fill out this field"));
+            guestService.save(gst);
+        } 
+        catch (Exception ex) {
+            e = ex;
+            message = ex.getMessage();
+        }
+        
+        Assert.assertTrue(e instanceof Exception);
+    }
+    
+    @Test
+    public void createLoginTest() throws Exception {
+        
+        
+        Throwable e = null;
+        String message = null;
+        
+        try {
+            Guest gst = new Guest();
+            gst.setLogin("TestNewAccount");
+            gst.setPassword("AddTestPassword");
+
+            when(repository.findByLogin(gst.getLogin()))
+                    .thenThrow(new Exception("Fill out this field"));
+            guestService.findByLogin(gst.getLogin());
+        } 
+        catch (Exception ex) {
+            e = ex;
+            message = ex.getMessage();
+        }
+        
+        Assert.assertTrue(e instanceof Exception);
+    }
+    
+
 
     @Test
     public void testListRooms() throws Exception {
@@ -577,7 +645,7 @@ public class HotelTest {
                 .andExpect(view().name("redirect:/"))
                 .andExpect(forwardedUrl(null));
         destroyReservation();
-    }
+    }    
 
     private void initReservation() throws Exception {
         if (guestService.findByLogin(guest.getLogin()) != null) {
